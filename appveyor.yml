@@ -1,18 +1,21 @@
 environment:
+
   matrix:
-    - nodejs_version: "7"
+    - nodejs_version: "10"
+    - nodejs_version: "8"
     - nodejs_version: "6"
-    - nodejs_version: "4"
 
 install:
   - ps: Install-Product node $env:nodejs_version
   - yarn install
 
 test_script:
-  - yarn test
+  - ./node_modules/.bin/gulp build
+  - ./node_modules/.bin/jest
 
 cache:
  - node_modules
  - "%LOCALAPPDATA%/Yarn"
 
 build: off
+deploy: off

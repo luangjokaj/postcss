@@ -1,32 +1,33 @@
-import Parser from './parser';
-import Input  from './input';
+import Parser from './parser'
+import Input from './input'
 
-export default function parse(css, opts) {
-    if ( opts && opts.safe ) {
-        throw new Error('Option safe was removed. ' +
-                        'Use parser: require("postcss-safe-parser")');
-    }
-
-    let input = new Input(css, opts);
-
-    let parser = new Parser(input);
-    try {
-        parser.tokenize();
-        parser.loop();
-    } catch (e) {
-        if ( e.name === 'CssSyntaxError' && opts && opts.from ) {
-            if ( /\.scss$/i.test(opts.from) ) {
-                e.message += '\nYou tried to parse SCSS with ' +
-                             'the standard CSS parser; ' +
-                             'try again with the postcss-scss parser';
-            } else if ( /\.less$/i.test(opts.from) ) {
-                e.message += '\nYou tried to parse Less with ' +
-                             'the standard CSS parser; ' +
-                             'try again with the postcss-less parser';
-            }
+function parse (css, opts) {
+  let input = new Input(css, opts)
+  let parser = new Parser(input)
+  try {
+    parser.parse()
+  } catch (e) {
+    if (process.env.NODE_ENV !== 'production') {
+      if (e.name === 'CssSyntaxError' && opts && opts.from) {
+        if (/\.scss$/i.test(opts.from)) {
+          e.message += '\nYou tried to parse SCSS with ' +
+                       'the standard CSS parser; ' +
+                       'try again with the postcss-scss parser'
+        } else if (/\.sass/i.test(opts.from)) {
+          e.message += '\nYou tried to parse Sass with ' +
+                       'the standard CSS parser; ' +
+                       'try again with the postcss-sass parser'
+        } else if (/\.less$/i.test(opts.from)) {
+          e.message += '\nYou tried to parse Less with ' +
+                       'the standard CSS parser; ' +
+                       'try again with the postcss-less parser'
         }
-        throw e;
+      }
     }
+    throw e
+  }
 
-    return parser.root;
+  return parser.root
 }
+
+export default parse
